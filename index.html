@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Dashboard</title>
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:white; color:black;}
+body.dark { background:#1a1a1a; color:white; }
+.tabs button { margin:2px; padding:6px 12px; cursor:pointer; }
+.tab-content { padding:10px; }
+textarea, input { width: 100%; margin:4px 0; padding:6px; box-sizing:border-box; }
+button { margin:4px 0; padding:6px 12px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<h1>Life Dashboard</h1>
+<label>Dark Mode <input type="checkbox" id="darkToggle"></label>
+<label>Browser Notifications <input type="checkbox" id="notifToggle" checked></label>
+
+<div class="tabs">
+  <button onclick="showTab('home')">Home</button>
+  <button onclick="showTab('bible')">Bible</button>
+  <button onclick="showTab('fitness')">Fitness</button>
+  <button onclick="showTab('diet')">Diet</button>
+  <button onclick="showTab('habits')">Habits</button>
+  <button onclick="showTab('routines')">Routines</button>
+  <button onclick="showTab('journal')">Journal</button>
+  <button onclick="showTab('todo')">To-Do</button>
+  <button onclick="showTab('weekly')">Weekly Tasks</button>
+  <button onclick="showTab('finance')">Finance</button>
+  <button onclick="showTab('wishlist')">Wishlist</button>
+  <button onclick="showTab('summaries')">Summaries</button>
+  <button onclick="showTab('songs')">Music</button>
+  <button onclick="showTab('planner')">Planner</button>
+</div>
+
+<div class="tab-content" id="content"></div>
+
+<script>
+// Load or initialize state from localStorage
+let state = JSON.parse(localStorage.getItem('lifeDashboardState')) || {
+  darkMode:false,
+  notifications:true,
+  habits: [],
+  runs: [],
+  water:0,
+  routines:{morning:[], evening:[]},
+  journal:"",
+  todo:[],
+  weeklyTasks:{mon:[], tue:[], wed:[], thu:[], fri:[], sat:[], sun:[]},
+  finance:[],
+  wishlist:[],
+  summaries:[],
+  songs:[],
+  planner:[],
+  verses:[],
+  translation:"ESV"
+};
+
+// Save to localStorage whenever state changes
+function saveState() {
+  localStorage.setItem('lifeDashboardState', JSON.stringify(state));
+}
+
+// Notification helper
+function notify(msg){
+  if(state.notifications && "Notification" in window){
+    Notification.requestPermission().then(p=>{if(p==="granted") new Notification(msg);});
+  }
+}
+
+// Tabs rendering
+function showTab(tab){
+  saveState();
+  let html="";
+  switch(tab){
+    case "home":
+      html=`<h2>Home</h2>
+        <p>Habit Score: ${state.habits.filter(h=>h.done).length}</p>
+        <p>Total Miles Run: ${state.runs.reduce((a,b)=>a+(b.distance||0),0)}</p>
+        <p>Water Intake: ${state.water} oz</p>`;
+      break;
+    case "bible":
+      html=`<h2>Bible (${state.translation})</h2>
+        <button onclick="state.translation='ESV'; showTab('bible')">ESV</button>
+        <button onclick="state.translation='NIV'; showTab('bible')">NIV</button>
+        <textarea rows="3" placeholder="Add verse" oninput="state.verses=this.value.split('\\n')">${state.verses.join('\\n')}</textarea>`;
+      break;
+    case "fitness":
+      html=`<h2>Fitness</h2>
+        ${state.runs.map(r=>`<p>${r.date}: ${r.distance} miles, ${r.calories||0} cal</p>`).join('')}
+        <button onclick="state.runs.push({date:new Date().toLocaleDateString(), distance:3, calories:250}); showTab('fitness'); notify('Added a run!')">Add Example Run</button>`;
+      break;
+    case "diet":
+      html=`<h2>Diet & Water</h2>
+        <button onclick="state.water+=8; showTab('diet'); notify('Added 8oz water')">+8oz Water</button>`;
+      break;
+    case "habits":
+      html=`<h2>Habits</h2>
+        ${state.habits.map((h,i)=>`<div><input type="checkbox" ${h.done?'checked':''} onchange="state.habits[${i}].done=this.checked; showTab('habits');"> ${h.name}</div>`).join('')}
+        <button onclick="state.habits.push({name:'New Habit', done:false}); showTab('habits');">Add Habit</button>`;
+      break;
+    case "routines":
+      html=`<h2>Routines</h2>
+        <h3>Morning</h3><textarea rows="3" oninput="state.routines.morning=this.value.split('\\n')">${state.routines.morning.join('\\n')}</textarea>
+        <h3>Evening</h3><textarea rows="3" oninput="state.routines.evening=this.value.split('\\n')">${state.routines.evening.join('\\n')}</textarea>`;
+      break;
+    case "journal":
+      html=`<h2>Journal</h2><textarea rows="3" oninput="state.journal=this.value">${state.journal}</textarea>`;
+      break;
+    case "todo":
+      html=`<h2>To-Do</h2>${state.todo.map((t,i)=>`<p>${t.task}</p>`).join('')}
+        <button onclick="state.todo.push({task:'New Task'}); showTab('todo');">Add Task</button>`;
+      break;
+    case "weekly":
+      html=`<h2>Weekly Tasks</h2>${Object.keys(state.weeklyTasks).map(d=>`<b>${d.toUpperCase()}:</b><br>${state.weeklyTasks[d].map(t=>t.task).join(', ')}<br><button onclick="state.weeklyTasks['${d}'].push({task:'New Task'}); showTab('weekly')">Add Task</button>`).join('<br>')}`;
+      break;
+    case "finance":
+      html=`<h2>Finance</h2>${state.finance.map((f,i)=>`<p>${f.name || 'Item'}: ${f.amount || 0}</p>`).join('')}
+        <button onclick="state.finance.push({name:'New Item', amount:0}); showTab('finance')">Add Finance</button>`;
+      break;
+    case "wishlist":
+      html=`<h2>Wishlist</h2>${state.wishlist.map((w,i)=>`<p>${w.item}</p>`).join('')}
+        <button onclick="state.wishlist.push({item:'New Item'}); showTab('wishlist')">Add Item</button>`;
+      break;
+    case "summaries":
+      html=`<h2>Summaries</h2><textarea rows="3" oninput="state.summaries=this.value.split('\\n')">${state.summaries.join('\\n')}</textarea>`;
+      break;
+    case "songs":
+      html=`<h2>Music / Song Ideas</h2><textarea rows="3" oninput="state.songs=this.value.split('\\n')">${state.songs.join('\\n')}</textarea>`;
+      break;
+    case "planner":
+      html=`<h2>Planner</h2>${state.planner.map((p,i)=>`<p>${p.date || new Date().toLocaleDateString()}: ${p.event}</p>`).join('')}
+        <button onclick="state.planner.push({date:new Date().toLocaleDateString(), event:'New Event'}); showTab('planner'); notify('Added planner event!')">Add Event</button>`;
+      break;
+  }
+  document.getElementById('content').innerHTML = html;
+  saveState();
+}
+
+// Event listeners
+document.getElementById('darkToggle').addEventListener('change', e=>{
+  state.darkMode=e.target.checked;
+  document.body.className=state.darkMode?'dark':'';
+  saveState();
+});
+document.getElementById('notifToggle').addEventListener('change', e=>{
+  state.notifications=e.target.checked;
+  saveState();
+});
+
+// Initial render
+if(state.darkMode) document.body.className='dark';
+showTab('home');
+</script>
+</body>
+</html>

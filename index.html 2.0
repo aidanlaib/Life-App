@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        header {
+            background-color: #4a90e2;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: #333;
+        }
+        nav button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 1rem;
+            cursor: pointer;
+        }
+        section {
+            padding: 1rem;
+            display: none;
+        }
+        section.active {
+            display: block;
+        }
+        .dark-mode {
+            background-color: #222;
+            color: #eee;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+        }
+        input, button {
+            padding: 0.5rem;
+            margin: 0.3rem 0;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Life Dashboard</h1>
+    <button id="darkToggle">Toggle Dark Mode</button>
+</header>
+
+<nav>
+    <button data-section="habits">Habits</button>
+    <button data-section="bible">Bible</button>
+    <button data-section="fitness">Fitness</button>
+    <button data-section="journal">Journal</button>
+    <button data-section="todo">To-Do</button>
+    <button data-section="finance">Finance</button>
+    <button data-section="wishlist">Wishlist</button>
+    <button data-section="songs">Songs</button>
+    <button data-section="chatbot">AI Chat</button>
+</nav>
+
+<section id="habits">
+    <h2>Habit Tracker</h2>
+    <textarea placeholder="Write your habits here..."></textarea>
+    <button onclick="alert('Score feature coming soon!')">Calculate Habit Score</button>
+</section>
+
+<section id="bible">
+    <h2>Bible Verses</h2>
+    <label>Verse:</label>
+    <input type="text" id="verseInput" placeholder="John 3:16">
+    <button onclick="showVerse()">Show Verse</button>
+    <p id="verseDisplay"></p>
+</section>
+
+<section id="fitness">
+    <h2>Fitness Tracker</h2>
+    <label>Miles Run:</label>
+    <input type="number" id="milesInput" placeholder="0">
+    <label>Calories:</label>
+    <input type="number" id="calInput" placeholder="0">
+    <label>Water Intake (oz):</label>
+    <input type="number" id="waterInput" placeholder="0">
+    <button onclick="alert('Fitness log saved!')">Save</button>
+</section>
+
+<section id="journal">
+    <h2>Journal</h2>
+    <textarea placeholder="Write about your day..."></textarea>
+    <button onclick="alert('Journal entry saved!')">Save</button>
+</section>
+
+<section id="todo">
+    <h2>To-Do List</h2>
+    <textarea placeholder="Things to do..."></textarea>
+</section>
+
+<section id="finance">
+    <h2>Finance Tracker</h2>
+    <label>Income:</label>
+    <input type="number" placeholder="0">
+    <label>Expenses:</label>
+    <input type="number" placeholder="0">
+    <button onclick="alert('Finance saved!')">Save</button>
+</section>
+
+<section id="wishlist">
+    <h2>Wishlist</h2>
+    <textarea placeholder="Things you want to buy..."></textarea>
+</section>
+
+<section id="songs">
+    <h2>Song Ideas & Chords</h2>
+    <textarea placeholder="Write lyrics, chords, tunings..."></textarea>
+</section>
+
+<section id="chatbot">
+    <h2>AI Chat</h2>
+    <textarea placeholder="Type your question..."></textarea>
+    <button onclick="alert('AI response coming soon!')">Send</button>
+</section>
+
+<script>
+    // Section navigation
+    const navButtons = document.querySelectorAll('nav button');
+    const sections = document.querySelectorAll('section');
+
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            sections.forEach(sec => sec.classList.remove('active'));
+            document.getElementById(btn.dataset.section).classList.add('active');
+        });
+    });
+
+    // Dark mode toggle
+    document.getElementById('darkToggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+    });
+
+    // Bible verse placeholder
+    function showVerse() {
+        const verse = document.getElementById('verseInput').value;
+        document.getElementById('verseDisplay').innerText = `Verse (${verse}) will display here.`;
+    }
+
+    // Show first section by default
+    document.getElementById('habits').classList.add('active');
+</script>
+
+</body>
+</html>
